@@ -12,11 +12,11 @@ class Obstacle(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             self.rect.x -= 5
-        if keys[pygame.K_s]:
+        if keys[pygame.K_d]:
             self.rect.x += 5
         if keys[pygame.K_w]:
             self.rect.y -= 5
-        if keys[pygame.K_z]:
+        if keys[pygame.K_s]:
             self.rect.y += 5
 
         if self.rect.x < 0:
