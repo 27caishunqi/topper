@@ -14,7 +14,10 @@ player2 = Player(screen, True)
 player2_group = pygame.sprite.Group()
 player2_group.add(player2)
 
+obstacle = Obstacle(screen)
 obstacle_group = pygame.sprite.Group()
+obstacle_group.add(obstacle)
+
 timer = time.time() + 5
 while time.time() < timer:
     for event in pygame.event.get():
@@ -27,6 +30,8 @@ while time.time() < timer:
     player_group.draw(screen)
     player2.update()
     player2_group.draw(screen)
+    obstacle.update()
+    obstacle_group.draw(screen)
     pygame.display.update()
     clock.tick(60)
     
