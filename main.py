@@ -21,6 +21,25 @@ obstacle_group = pygame.sprite.Group()
 obstacle_group.add(obstacle1)
 obstacle_group.add(obstacle2)
 obstacle_group.add(obstacle3)
+def collision(sprite, sprite_group):
+    collided = pygame.sprite.spritecollide(sprite, sprite_group, False)
+    
+    for object in collided:
+        dx = sprite.rect.centerx - object.rect.centerx
+        dy = sprite.rect.centery - object.rect.centery
+        if abs(dx) > abs(dy):
+            if dx > 0:
+                sprite.rect.left = object.rect.right
+            else:
+                sprite.rect.right = object.rect.left
+        else:    
+            if dy > 0:
+                sprite.rect.top = object.rect.bottom
+            else:
+                sprite.rect.bottom = object.rect.top
+
+
+
 '''
 timer = time.time() + 5
 while time.time() < timer:
@@ -44,36 +63,7 @@ while True:
     pygame.display.update()
     clock.tick(60)
         
-
-    obstacle_collison = pygame.sprite.spritecollide(player, obstacle_group, False)
-    
-    for obstacle in obstacle_collison:
-        dx = player.rect.centerx - obstacle.rect.centerx
-        dy = player.rect.centery - obstacle.rect.centery
-        if abs(dx) > abs(dy):
-            if dx > 0:
-                player.rect.left = obstacle.rect.right
-            else:
-                player.rect.right = obstacle.rect.left
-        else:    
-            if dy > 0:
-                player.rect.top = obstacle.rect.bottom
-            else:
-                player.rect.bottom = obstacle.rect.top
-    player_collision = pygame.sprite.spritecollide(player, player2_group, False)
-    for playerCol in player_collision:
-        dx = player.rect.centerx - playerCol.rect.centerx
-        dy = player.rect.centery - playerCol.rect.centery
-        if abs(dx) > abs(dy):
-            if dx > 0:
-                player.rect.left = playerCol.rect.right
-            else:
-                player.rect.right = playerCol.rect.left
-        else:    
-            if dy > 0:
-                player.rect.top = playerCol.rect.bottom
-            else:
-                player.rect.bottom = playerCol.rect.top
-
-
-
+    collision(player, obstacle_group)
+    collision(player2, obstacle_group)
+    collision(player, player2_group)
+    collision(player2, player_group)
