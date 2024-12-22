@@ -4,13 +4,13 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, screen, isPlayer2 = False):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((50, 50))
+        self.rect = self.image.get_rect()
         if not isPlayer2:
             self.image.fill((255, 0, 0))
             self.rect.center = (screen.get_width()/2, screen.get_height()/2)
         else:
             self.image.fill((255, 0, 255))
             self.rect.center = (screen.get_width()/2 + 60, screen.get_height()/2)
-        self.rect = self.image.get_rect()
         #self.rect.center = (screen.get_width()/2, screen.get_height()/2)
         self.isPlayer2 = isPlayer2
     
