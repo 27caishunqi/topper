@@ -53,7 +53,7 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             quit()
-    screen.fill((0,0,0))
+    screen.fill((100,100,100))
     player.update()
     player_group.draw(screen)
     player2.update()
