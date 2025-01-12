@@ -13,6 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.state = "idle"
         self.frame_index = 0
         self.animation_speed = 0.1
+        self.health = 3
         self.images = self.load_images(self.state)
         self.image = self.images[self.frame_index]
         self.width = self.image.get_width()
@@ -20,6 +21,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         if not isPlayer2:
             self.rect.center = (screen.get_width() / 2, screen.get_height() / 2)
+
         else:
             self.rect.center = (screen.get_width() / 2 + 60, screen.get_height() / 2)
         self.isPlayer2 = isPlayer2
