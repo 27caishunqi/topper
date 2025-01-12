@@ -61,7 +61,7 @@ while True:
     obstacle1.update()
     obstacle_group.draw(screen)
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(70)
         
     collision(player, obstacle_group)
     collision(player2, obstacle_group)

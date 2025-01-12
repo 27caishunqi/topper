@@ -55,10 +55,7 @@ class Player(pygame.sprite.Sprite):
         self.state_manager()
 
     def update(self):
-        self.frame_index += self.animation_speed
-        if self.frame_index >= len(self.images):
-            self.frame_index = 0
-        self.image = self.images[int(self.frame_index)]
+        previous_state = self.state
         
         keys = pygame.key.get_pressed()
         if self.isPlayer2:
@@ -95,6 +92,14 @@ class Player(pygame.sprite.Sprite):
         if not any([keys[pygame.K_a], keys[pygame.K_d], keys[pygame.K_w], keys[pygame.K_s], keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN], keys[pygame.K_SPACE], keys[pygame.K_RETURN]]):
             self.state = "idle"
 
+        if self.state != previous_state:
+            self.state_manager()
+
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(self.images):
+            self.frame_index = 0
+        self.image = self.images[int(self.frame_index)]
+
         if self.rect.x < 0:
             self.rect.x = 800
         if self.rect.x > 800:
@@ -103,5 +108,3 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = 600
         if self.rect.y > 600:
             self.rect.y = 0
-
-        self.state_manager()
