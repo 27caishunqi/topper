@@ -23,6 +23,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.rect.center = (screen.get_width() / 2 + 60, screen.get_height() / 2)
         self.isPlayer2 = isPlayer2
+        self.attacking = False
 
     def load_images(self, state):
         images = []
@@ -52,45 +53,47 @@ class Player(pygame.sprite.Sprite):
 
     def attack(self):
         self.state = "attack"
+        self.attacking = True
         self.state_manager()
 
     def update(self):
         previous_state = self.state
-        
-        keys = pygame.key.get_pressed()
-        if self.isPlayer2:
-            if keys[pygame.K_a]:
-                self.rect.x -= 5
-                self.state = "run"
-            if keys[pygame.K_d]:
-                self.rect.x += 5
-                self.state = "run"
-            if keys[pygame.K_w]:
-                self.rect.y -= 5
-                self.state = "jump"
-            if keys[pygame.K_s]:
-                self.rect.y += 5
-                self.state = "falling"
-            if keys[pygame.K_SPACE]:
-                self.attack()
-        else:
-            if keys[pygame.K_LEFT]:
-                self.rect.x -= 5
-                self.state = "run"
-            if keys[pygame.K_RIGHT]:
-                self.rect.x += 5
-                self.state = "run"
-            if keys[pygame.K_UP]:
-                self.rect.y -= 5
-                self.state = "jump"
-            if keys[pygame.K_DOWN]:
-                self.rect.y += 5
-                self.state = "falling"
-            if keys[pygame.K_RETURN]:
-                self.attack()
 
-        if not any([keys[pygame.K_a], keys[pygame.K_d], keys[pygame.K_w], keys[pygame.K_s], keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN], keys[pygame.K_SPACE], keys[pygame.K_RETURN]]):
-            self.state = "idle"
+        keys = pygame.key.get_pressed()
+        if not self.attacking:
+            if self.isPlayer2:
+                if keys[pygame.K_a]:
+                    self.rect.x -= 5
+                    self.state = "run"
+                if keys[pygame.K_d]:
+                    self.rect.x += 5
+                    self.state = "run"
+                if keys[pygame.K_w]:
+                    self.rect.y -= 5
+                    self.state = "jump"
+                if keys[pygame.K_s]:
+                    self.rect.y += 5
+                    self.state = "falling"
+                if keys[pygame.K_SPACE]:
+                    self.attack()
+            else:
+                if keys[pygame.K_LEFT]:
+                    self.rect.x -= 5
+                    self.state = "run"
+                if keys[pygame.K_RIGHT]:
+                    self.rect.x += 5
+                    self.state = "run"
+                if keys[pygame.K_UP]:
+                    self.rect.y -= 5
+                    self.state = "jump"
+                if keys[pygame.K_DOWN]:
+                    self.rect.y += 5
+                    self.state = "falling"
+                if keys[pygame.K_RETURN]:
+                    self.attack()
+
+            if not any([keys[pygame.K_a], keys[pygame.K_d], keys[pygame.K_w], keys[pygame.K_s], keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN], keys[pygame.K_SPACE], keys[pygame.K_RETURN]]):
+                self.state = "idle"
 
         if self.state != previous_state:
             self.state_manager()
@@ -98,6 +101,11 @@ class Player(pygame.sprite.Sprite):
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.images):
             self.frame_index = 0
+            if self.attacking:
+                self.attacking = False
+                self.state = "idle"
+                self.state_manager()
+
         self.image = self.images[int(self.frame_index)]
 
         if self.rect.x < 0:
