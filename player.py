@@ -28,8 +28,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.center = (screen.get_width() / 2 + 60, screen.get_height() / 2)
 
         # Health sprite
-        self.health_sprite = Heart(self.rect.centerx, self.rect.top - 20, 20)
-
+        self.health_sprites = [Heart(self.rect.centerx - 20, self.rect.top - 20, 20), Heart(self.rect.centerx, self.rect.top - 20, 20), Heart(self.rect.centerx + 20, self.rect.top - 20, 20)]
     def load_images(self, state):
         images = []
         if state == "idle":
@@ -123,7 +122,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = 0
 
         # Update health sprite position
-        self.health_sprite.rect.center = (self.rect.centerx, self.rect.top - 20)
+        for i in range(len(self.health_sprites)):
+            pos = -20 * i
+            self.health_sprites[i].rect.center = (self.rect.centerx + pos, self.rect.top - 20)
 
     def draw_health(self, screen):
-        screen.blit(self.health_sprite.image, self.health_sprite.rect)
+        for heart in self.health_sprites:
+            screen.blit(heart.image, heart.rect)
