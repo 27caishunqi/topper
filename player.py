@@ -52,54 +52,61 @@ class Player(pygame.sprite.Sprite):
                     images.append(pygame.image.load(os.path.join(RUN_PATH, file_name)))
         return images
 
-    def state_manager(self):
-        self.images = self.load_images(self.state)
-        self.frame_index = 0
+    def state_manager(self, new_state):
+        if new_state != self.state:
+            self.state = new_state
+            self.images = self.load_images(self.state)
+            self.frame_index = 0
 
     def attack(self):
         self.state = "attack"
         self.state_manager()
 
     def update(self):
-        previous_state = self.state
         keys = pygame.key.get_pressed()
+        new_state = self.state  # Track the desired state
 
-        # Movement logic
+        # Player 2 Controls
         if self.isPlayer2:
             if keys[pygame.K_a]:
                 self.rect.x -= 5
-                self.state = "run"
-            if keys[pygame.K_d]:
+                new_state = "run"
+            elif keys[pygame.K_d]:
                 self.rect.x += 5
-                self.state = "run"
-            if keys[pygame.K_w]:
+                new_state = "run"
+            elif keys[pygame.K_w]:
                 self.rect.y -= 5
-                self.state = "jump"
-            if keys[pygame.K_s]:
+                new_state = "jump"
+            elif keys[pygame.K_s]:
                 self.rect.y += 5
-                self.state = "falling"
-            if keys[pygame.K_SPACE]:
-                self.attack()
+                new_state = "falling"
+            elif keys[pygame.K_SPACE]:
+                new_state = "attack"
+        # Player 1 Controls
         else:
             if keys[pygame.K_LEFT]:
                 self.rect.x -= 5
-                self.state = "run"
-            if keys[pygame.K_RIGHT]:
+                new_state = "run"
+            elif keys[pygame.K_RIGHT]:
                 self.rect.x += 5
-                self.state = "run"
-            if keys[pygame.K_UP]:
+                new_state = "run"
+            elif keys[pygame.K_UP]:
                 self.rect.y -= 5
-                self.state = "jump"
-            if keys[pygame.K_DOWN]:
+                new_state = "jump"
+            elif keys[pygame.K_DOWN]:
                 self.rect.y += 5
-                self.state = "falling"
-            if keys[pygame.K_RETURN]:
-                self.attack()
+                new_state = "falling"
+            elif keys[pygame.K_RETURN]:
+                new_state = "attack"
 
-        if self.state != previous_state:
-            self.state_manager()
+        # Default to idle if no key is pressed
+        if new_state == self.state and not any(keys):
+            new_state = "idle"
 
-        # Animation update
+        # Update the state only if it has changed
+        self.state_manager(new_state)
+
+        # Update animation frame
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.images):
             self.frame_index = 0
