@@ -1,69 +1,75 @@
 import pygame
 from player import Player
 from obstacle import Obstacle
-import time
 
+# Initialize Pygame
+pygame.init()
+
+# Screen setup
 screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Game with Health Sprite")
 clock = pygame.time.Clock()
 
+# Create player objects
 player = Player(screen)
-player_group = pygame.sprite.Group()
-player_group.add(player)
-
 player2 = Player(screen, True)
-player2_group = pygame.sprite.Group()
-player2_group.add(player2)
 
-obstacle1 = Obstacle(screen, (150,100), (31, 137), (193, 198, 36))
+# Create sprite groups
+player_group = pygame.sprite.Group(player)
+player2_group = pygame.sprite.Group(player2)
+
+# Create obstacle objects
+obstacle1 = Obstacle(screen, (150, 100), (31, 137), (193, 198, 36))
 obstacle2 = Obstacle(screen, (700, 370), (140, 145), (127, 27, 163))
 obstacle3 = Obstacle(screen, (284, 528), (12, 94), (138, 49, 27))
-obstacle_group = pygame.sprite.Group()
-obstacle_group.add(obstacle1)
-obstacle_group.add(obstacle2)
-obstacle_group.add(obstacle3)
+obstacle_group = pygame.sprite.Group(obstacle1, obstacle2, obstacle3)
+
+# Collision handling
 def collision(sprite, sprite_group):
     collided = pygame.sprite.spritecollide(sprite, sprite_group, False)
-    
-    for object in collided:
-        dx = sprite.rect.centerx - object.rect.centerx
-        dy = sprite.rect.centery - object.rect.centery
+    for obj in collided:
+        dx = sprite.rect.centerx - obj.rect.centerx
+        dy = sprite.rect.centery - obj.rect.centery
         if abs(dx) > abs(dy):
             if dx > 0:
-                sprite.rect.left = object.rect.right
+                sprite.rect.left = obj.rect.right
             else:
-                sprite.rect.right = object.rect.left
-        else:    
+                sprite.rect.right = obj.rect.left
+        else:
             if dy > 0:
-                sprite.rect.top = object.rect.bottom
+                sprite.rect.top = obj.rect.bottom
             else:
-                sprite.rect.bottom = object.rect.top
+                sprite.rect.bottom = obj.rect.top
 
-
-
-'''
-timer = time.time() + 5
-while time.time() < timer:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            quit()
-'''
+# Main game loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             quit()
-    screen.fill((100,100,100))
+
+    # Clear the screen
+    screen.fill((100, 100, 100))
+
+    # Update and draw player 1
     player.update()
     player_group.draw(screen)
+    player.draw_health(screen)
+
+    # Update and draw player 2
     player2.update()
     player2_group.draw(screen)
-    obstacle1.update()
+    player2.draw_health(screen)
+
+    # Update and draw obstacles
     obstacle_group.draw(screen)
-    pygame.display.update()
-    clock.tick(70)
-        
+
+    # Handle collisions
     collision(player, obstacle_group)
     collision(player2, obstacle_group)
     collision(player, player2_group)
     collision(player2, player_group)
+
+    # Update the display
+    pygame.display.update()
+    clock.tick(70)

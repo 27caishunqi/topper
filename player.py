@@ -2,11 +2,13 @@ import pygame
 import os
 from heart import Heart
 
+# Paths to animations
 IDLE_PATH = "blackwhiteChar/idle/PNG file/"
 ATTACK_PATH = "blackwhiteChar/Attack/png file/"
 JUMP_PATH = "blackwhiteChar/jump/jump.png"
 RUN_PATH = "blackwhiteChar/run/Png/"
 FALLING_PATH = "blackwhiteChar/falling/"
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, screen, isPlayer2=False):
         pygame.sprite.Sprite.__init__(self)
@@ -16,16 +18,17 @@ class Player(pygame.sprite.Sprite):
         self.health = 3
         self.images = self.load_images(self.state)
         self.image = self.images[self.frame_index]
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
         self.rect = self.image.get_rect()
-        self.health_sprite = Heart(self.rect.x, self.rect.y, 20)
+        self.isPlayer2 = isPlayer2
+
+        # Positioning
         if not isPlayer2:
             self.rect.center = (screen.get_width() / 2, screen.get_height() / 2)
-            self.rect 
         else:
             self.rect.center = (screen.get_width() / 2 + 60, screen.get_height() / 2)
-        self.isPlayer2 = isPlayer2
+
+        # Health sprite
+        self.health_sprite = Heart(self.rect.centerx, self.rect.top - 20, 20)
 
     def load_images(self, state):
         images = []
@@ -59,8 +62,9 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         previous_state = self.state
-        
         keys = pygame.key.get_pressed()
+
+        # Movement logic
         if self.isPlayer2:
             if keys[pygame.K_a]:
                 self.rect.x -= 5
@@ -92,19 +96,16 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_RETURN]:
                 self.attack()
 
-        if self.isPlayer2 and not any([keys[pygame.K_a], keys[pygame.K_d], keys[pygame.K_w], keys[pygame.K_s], keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN], keys[pygame.K_SPACE], keys[pygame.K_RETURN]]):
-            self.state = "idle"
-        if not self.isPlayer2 and not any([keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN], keys[pygame.K_RETURN]]):
-            self.state = "idle"
-
         if self.state != previous_state:
             self.state_manager()
 
+        # Animation update
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.images):
             self.frame_index = 0
         self.image = self.images[int(self.frame_index)]
 
+        # Screen wrapping
         if self.rect.x < 0:
             self.rect.x = 800
         if self.rect.x > 800:
@@ -113,3 +114,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = 600
         if self.rect.y > 600:
             self.rect.y = 0
+
+        # Update health sprite position
+        self.health_sprite.rect.center = (self.rect.centerx, self.rect.top - 20)
+
+    def draw_health(self, screen):
+        screen.blit(self.health_sprite.image, self.health_sprite.rect)
