@@ -53,14 +53,15 @@ class Player(pygame.sprite.Sprite):
 
     def state_manager(self, new_state):
         if new_state != self.state:
+            print(f"State changing from {self.state} to {new_state}")
             self.state = new_state
             self.images = self.load_images(self.state)
             self.frame_index = 0
 
     def attack(self):
-        self.state = "attack"
-        self.state_manager()
-        self.health = self.health - 1
+        #self.state = "attack"
+        self.state_manager("attack")
+        #self.health = self.health - 1
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -71,40 +72,39 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_a]:
                 self.rect.x -= 5
                 new_state = "run"
-            elif keys[pygame.K_d]:
+            if keys[pygame.K_d]:
                 self.rect.x += 5
                 new_state = "run"
-            elif keys[pygame.K_w]:
+            if keys[pygame.K_w]:
                 self.rect.y -= 5
                 new_state = "jump"
-            elif keys[pygame.K_s]:
+            if keys[pygame.K_s]:
                 self.rect.y += 5
                 new_state = "falling"
-            elif keys[pygame.K_SPACE]:
+            if keys[pygame.K_SPACE]:  # Attack key
                 new_state = "attack"
-        # Player 1 Controls
-        else:
+        else:  # Player 1 Controls
             if keys[pygame.K_LEFT]:
                 self.rect.x -= 5
                 new_state = "run"
-            elif keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT]:
                 self.rect.x += 5
                 new_state = "run"
-            elif keys[pygame.K_UP]:
+            if keys[pygame.K_UP]:
                 self.rect.y -= 5
                 new_state = "jump"
-            elif keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN]:
                 self.rect.y += 5
                 new_state = "falling"
-            elif keys[pygame.K_RETURN]:
+            if keys[pygame.K_RETURN]:  # Attack key
                 new_state = "attack"
 
         # Default to idle if no key is pressed
         if new_state == self.state and not any(keys):
             new_state = "idle"
 
-        # Update the state only if it has changed
         self.state_manager(new_state)
+
 
         # Update animation frame
         self.frame_index += self.animation_speed
@@ -124,9 +124,18 @@ class Player(pygame.sprite.Sprite):
 
         # Update health sprite position
         for i in range(self.health):
-            pos = -20 * i
+            pos = -22  + 22 * i
             self.health_sprites[i].rect.center = (self.rect.centerx + pos, self.rect.top - 20)
 
     def draw_health(self, screen):
         for heart in self.health_sprites:
             screen.blit(heart.image, heart.rect)
+
+    def hurt(self, other_player):
+        print(f"Hurting {other_player}. Current health: {other_player.health}")
+        other_player.health -= 1
+        if other_player.health > 0:
+            other_player.health_sprites.pop()
+            print(f"{other_player} health now: {other_player.health}")
+        else:
+            print(f"{other_player} is out of health!")

@@ -25,9 +25,16 @@ obstacle3 = Obstacle(screen, (284, 528), (12, 94), (138, 49, 27))
 obstacle_group = pygame.sprite.Group(obstacle1, obstacle2, obstacle3)
 
 # Collision handling
-def collision(sprite, sprite_group):
+def collision(sprite, sprite_group, other_player=None):
     collided = pygame.sprite.spritecollide(sprite, sprite_group, False)
+    if collided:
+        print(f"{sprite} collided with {collided}")
     for obj in collided:
+        if other_player is not None and sprite.state == "attack":
+            print(f"{sprite} is attacking {other_player}")
+            obj.hurt(other_player)
+        
+        # Handle collision response
         dx = sprite.rect.centerx - obj.rect.centerx
         dy = sprite.rect.centery - obj.rect.centery
         if abs(dx) > abs(dy):
@@ -67,8 +74,8 @@ while True:
     # Handle collisions
     collision(player, obstacle_group)
     collision(player2, obstacle_group)
-    collision(player, player2_group)
-    collision(player2, player_group)
+    collision(player, player2_group, player2)
+    collision(player2, player_group, player)
 
     # Update the display
     pygame.display.update()
