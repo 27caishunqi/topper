@@ -60,6 +60,7 @@ class Player(pygame.sprite.Sprite):
     def attack(self):
         self.state = "attack"
         self.state_manager()
+        self.health = self.health - 1
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -122,7 +123,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = 0
 
         # Update health sprite position
-        for i in range(len(self.health_sprites)):
+        for i in range(self.health):
             pos = -20 * i
             self.health_sprites[i].rect.center = (self.rect.centerx + pos, self.rect.top - 20)
 
