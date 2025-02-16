@@ -2,7 +2,7 @@ import pygame
 import os
 from heart import Heart
 
-# Paths to animations
+# Paths to animations (ensure these paths are correct for your project)
 IDLE_PATH = "blackwhiteChar/idle/PNG file/"
 ATTACK_PATH = "blackwhiteChar/Attack/png file/"
 JUMP_PATH = "blackwhiteChar/jump/jump.png"
@@ -21,14 +21,23 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.isPlayer2 = isPlayer2
 
+        self.is_facing_right = True
+
         # Positioning
         if not isPlayer2:
             self.rect.center = (screen.get_width() / 2, screen.get_height() / 2)
         else:
             self.rect.center = (screen.get_width() / 2 + 60, screen.get_height() / 2)
 
-        # Health sprite
-        self.health_sprites = [Heart(self.rect.centerx - 20, self.rect.top - 20, 20), Heart(self.rect.centerx, self.rect.top - 20, 20), Heart(self.rect.centerx + 20, self.rect.top - 20, 20)]
+        # Health sprites
+        self.health_sprites = [
+            Heart(self.rect.centerx - 20, self.rect.top - 20, 20),
+            Heart(self.rect.centerx, self.rect.top - 20, 20),
+            Heart(self.rect.centerx + 20, self.rect.top - 20, 20)
+        ]
+        # Flag to ensure one hit per attack swing
+        self.has_attacked = False
+
     def load_images(self, state):
         images = []
         if state == "idle":
@@ -57,11 +66,12 @@ class Player(pygame.sprite.Sprite):
             self.state = new_state
             self.images = self.load_images(self.state)
             self.frame_index = 0
+            # Reset the attack flag when leaving the attack state
+            if new_state != "attack":
+                self.has_attacked = False
 
     def attack(self):
-        #self.state = "attack"
         self.state_manager("attack")
-        #self.health = self.health - 1
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -72,9 +82,11 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_a]:
                 self.rect.x -= 5
                 new_state = "run"
+                self.is_facing_right = False
             if keys[pygame.K_d]:
                 self.rect.x += 5
                 new_state = "run"
+                self.is_facing_right = True
             if keys[pygame.K_w]:
                 self.rect.y -= 5
                 new_state = "jump"
@@ -87,9 +99,11 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_LEFT]:
                 self.rect.x -= 5
                 new_state = "run"
+                self.is_facing_right = False
             if keys[pygame.K_RIGHT]:
                 self.rect.x += 5
                 new_state = "run"
+                self.is_facing_right = True
             if keys[pygame.K_UP]:
                 self.rect.y -= 5
                 new_state = "jump"
@@ -99,18 +113,24 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_RETURN]:  # Attack key
                 new_state = "attack"
 
-        # Default to idle if no key is pressed
+        # Default back to idle if no key is pressed (adjust as needed)
         if new_state == self.state and not any(keys):
             new_state = "idle"
 
         self.state_manager(new_state)
 
-
         # Update animation frame
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.images):
+            # If the attack animation finishes, allow a new attack next swing
+            if self.state == "attack":
+                self.has_attacked = False
             self.frame_index = 0
-        self.image = self.images[int(self.frame_index)]
+
+        current_image = self.images[int(self.frame_index)]
+        if not self.is_facing_right:
+            current_image = pygame.transform.flip(current_image, True, False)
+        self.image = current_image
 
         # Screen wrapping
         if self.rect.x < 0:
@@ -122,9 +142,9 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y > 600:
             self.rect.y = 0
 
-        # Update health sprite position
-        for i in range(self.health):
-            pos = -22  + 22 * i
+        # Update health sprite positions
+        for i in range(len(self.health_sprites)):
+            pos = -22 + 22 * i
             self.health_sprites[i].rect.center = (self.rect.centerx + pos, self.rect.top - 20)
 
     def draw_health(self, screen):
@@ -134,8 +154,10 @@ class Player(pygame.sprite.Sprite):
     def hurt(self, other_player):
         print(f"Hurting {other_player}. Current health: {other_player.health}")
         other_player.health -= 1
-        if other_player.health > 0:
+        # Always remove one heart if available—even the last one.
+        if other_player.health_sprites:
             other_player.health_sprites.pop()
+        if other_player.health > 0:
             print(f"{other_player} health now: {other_player.health}")
         else:
             print(f"{other_player} is out of health!")
