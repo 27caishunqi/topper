@@ -12,23 +12,20 @@ clock = pygame.time.Clock()
 
 # Create player objects
 player = Player(screen)
-player2 = Player(screen, True)
+player2 = Player(screen, isPlayer2=True)
 
-# Create sprite groups
-player_group = pygame.sprite.Group(player)
-player2_group = pygame.sprite.Group(player2)
-
-# Create obstacle objects
+# Create obstacle objects (adjust positions, sizes, and colors as needed)
 obstacle1 = Obstacle(screen, (150, 100), (31, 137), (193, 198, 36))
 obstacle2 = Obstacle(screen, (700, 370), (140, 145), (127, 27, 163))
 obstacle3 = Obstacle(screen, (284, 528), (12, 94), (138, 49, 27))
 obstacle_group = pygame.sprite.Group(obstacle1, obstacle2, obstacle3)
 
-# Collision handling
-def collision(sprite, sprite_group):
+# Function to handle collisions with obstacles (physical collisions)
+def handle_obstacle_collision(sprite, sprite_group):
     collided = pygame.sprite.spritecollide(sprite, sprite_group, False)
     for obj in collided:
-        dx = sprite.rect.centerx - obj.rect.centerx
+        # Basic collision response: push the sprite out of the object
+        dx = sprite.rect.centerx - obj.rect.centerx     
         dy = sprite.rect.centery - obj.rect.centery
         if abs(dx) > abs(dy):
             if dx > 0:
@@ -41,6 +38,17 @@ def collision(sprite, sprite_group):
             else:
                 sprite.rect.bottom = obj.rect.top
 
+# Function to handle player-vs-player attacks with extended range
+def player_attack_collision(attacker, defender, attack_range=20):
+    if attacker.state == "attack" and not attacker.has_attacked:
+        dx = attacker.rect.centerx - defender.rect.centerx
+        dy = attacker.rect.centery - defender.rect.centery
+        distance = (dx**2 + dy**2)**0.5
+        if distance <= attack_range:
+            print(f"{attacker} is attacking {defender} from {distance:.2f} pixels away")
+            attacker.hurt(defender)
+            attacker.has_attacked = True
+
 # Main game loop
 while True:
     for event in pygame.event.get():
@@ -51,25 +59,36 @@ while True:
     # Clear the screen
     screen.fill((100, 100, 100))
 
-    # Update and draw player 1
+    # Update players
     player.update()
-    player_group.draw(screen)
-    player.draw_health(screen)
-
-    # Update and draw player 2
     player2.update()
-    player2_group.draw(screen)
+
+    # Draw players
+    screen.blit(player.image, player.rect)
+    screen.blit(player2.image, player2.rect)
+
+    # Draw health sprites
+    player.draw_health(screen)
     player2.draw_health(screen)
 
-    # Update and draw obstacles
+    # Draw obstacles
     obstacle_group.draw(screen)
 
-    # Handle collisions
-    collision(player, obstacle_group)
-    collision(player2, obstacle_group)
-    collision(player, player2_group)
-    collision(player2, player_group)
+    # Handle obstacle collisions (physical movement constraints)
+    handle_obstacle_collision(player, obstacle_group)
+    handle_obstacle_collision(player2, obstacle_group)
 
-    # Update the display
+    # Handle player vs. player attacks (allows attack from 20 pixels away)
+    player_attack_collision(player, player2, attack_range=20)
+    player_attack_collision(player2, player, attack_range=20)
+
+    # Update display and tick clock
     pygame.display.update()
     clock.tick(70)
+    if player.health == 0 or player2.health == 0:
+        break
+
+if player.health > 0:
+    print("Player 1 WINS")
+elif player2.health > 0:
+    print("Player 2 Wins")
