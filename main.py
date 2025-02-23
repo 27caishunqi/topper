@@ -39,7 +39,7 @@ def handle_obstacle_collision(sprite, sprite_group):
                 sprite.rect.bottom = obj.rect.top
 
 # Function to handle player-vs-player attacks with extended range
-def player_attack_collision(attacker, defender, attack_range=20):
+def player_attack_collision(attacker, defender, attack_range=40):
     if attacker.state == "attack" and not attacker.has_attacked:
         dx = attacker.rect.centerx - defender.rect.centerx
         dy = attacker.rect.centery - defender.rect.centery
