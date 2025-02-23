@@ -1,6 +1,7 @@
 import pygame
 from player import Player
 from obstacle import Obstacle
+import time
 
 # Initialize Pygame
 pygame.init()
@@ -85,7 +86,8 @@ while True:
     # Update display and tick clock
     pygame.display.update()
     clock.tick(70)
-    if player.health == 0 or player2.health == 0:
+    if len(player.health_sprites) == 0 or len(player2.health_sprites) == 0:
+        time.sleep(1)
         break
 
 if player.health > 0:
